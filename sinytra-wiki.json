@@ -4,7 +4,11 @@
     "name": "Chasm",
     "description": "Chasm 2.0 - 面向 Fabric 1.21.1 的零 Mixin 玩法模组开发框架",
     "entryPage": "CodeWiki.md",
+    "modid": "chasm",
+    "owners": [
+        "123456cl"
+    ],
     "platforms": {
-        "modrinth": "chasm"
+        "curseforge": "chasm"
     }
 }
