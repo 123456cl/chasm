@@ -70,4 +70,4 @@ cd C:\path\to\chasm2
   示例模组里原本用到的一些贴图因授权未落实已被**主动移除**（含示例 GUI 主题包 `chasm-example/theme-pack/` 的贴图），
   运行时会报 `Missing texture`——这不是 bug，是刻意的合规处理。
   恢复方式：按原路径放回自己的贴图，或改用自制素材。
-- **第三方内容**：其版权归原作者，不在 MIT 范围之内（`LICENSE` 末尾已写明）。
+- **第三方内容**：其版权归原作者，不在 MIT 范围之内——详见 [`NOTICE.md`](NOTICE.md)。
