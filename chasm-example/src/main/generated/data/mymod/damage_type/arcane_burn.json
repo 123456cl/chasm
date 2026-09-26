@@ -1,0 +1,7 @@
+{
+  "death_message_type": "default",
+  "effects": "hurt",
+  "exhaustion": 0.0,
+  "message_id": "was consumed by arcane fire",
+  "scaling": "always"
+}

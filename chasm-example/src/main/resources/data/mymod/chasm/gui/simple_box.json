@@ -1,0 +1,12 @@
+{
+  "id": "mymod:simple_box",
+  "title": "简单宝盒",
+  "rows": 3,
+  "cols": 9,
+  "slots": [
+    { "col": 0, "row": 0, "width": 2, "height": 2 }
+  ],
+  "buttons": [
+    { "label": "传送", "col": 5, "row": 0, "action": "mymod:teleport", "cooldown": 20 }
+  ]
+}

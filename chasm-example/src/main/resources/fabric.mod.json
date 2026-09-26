@@ -1,0 +1,27 @@
+{
+	"schemaVersion": 1,
+	"id": "chasm-example",
+	"version": "${version}",
+	"name": "Chasm Example",
+	"description": "Chasm 2.0 示例：魔法剑。验证声明式注册 + 玩法行为组合。",
+	"authors": ["Chasm API Team"],
+	"license": "MIT",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.example.chasm.ExampleMod"
+		],
+		"client": [
+			"com.example.chasm.ExampleClient"
+		],
+		"fabric-datagen": [
+			"com.example.chasm.ExampleDataGen"
+		]
+	},
+	"depends": {
+		"chasm-core": "*",
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~1.21.1",
+		"java": ">=21"
+	}
+}

@@ -1,0 +1,14 @@
+{
+  "id": "mymod:flame_sword",
+  "type": "chasm:sword",
+  "tier": "minecraft:diamond",
+  "attack_damage": 12.0,
+  "attack_speed": 1.6,
+  "name": "Flame Sword",
+  "texture": "minecraft:item/diamond_sword",
+  "max_stack": 1,
+  "durability": 1200,
+  "enchant": [
+    { "id": "minecraft:fire_aspect", "level": 2 }
+  ]
+}

@@ -1,0 +1,55 @@
+# Chasm 2.0 - publish .gitignore (ASCII only on purpose: encoding-safe)
+# Rule of thumb: commit only OUR code + docs; exclude third-party content and local artifacts.
+
+# build / run dirs
+build/
+**/build/
+.gradle/
+.fabric/
+run/
+*/run/
+1.21.1-Fabric 0.19.3/
+1.21.1-Fabric 0.19.3.bat
+*.log
+logs/
+.tmp*
+
+# root-level leftovers (anchored with / so module-internal data|assets are NOT hit)
+/data/
+/assets/
+/com/
+/net/
+/META-INF/
+/mods/
+/refs/
+/port-errors.txt
+/javac.*.args
+/datagen-out.txt
+/pack.png
+*.zip
+*.jfc
+
+# local workspace
+_scratch/
+_ref/
+tools/probe-diff/out/
+
+# internal docs (see docs/README.md)
+docs/INT-*
+docs/tetra-ui-real-spec/
+docs/tetra-ui-probe/
+docs/PROGRESS-*
+
+# third-party port modules: bundled data files, no author permission yet.
+# Remove these two lines once permission is granted.
+/tetra-port/
+/apoth-port/
+# machine-local generated files
+/launch.bat
+/version.json
+**/src/main/generated/.cache/
+
+# UI probe: third-party real dumps and derived reports (internal only)
+tools/probe-diff/fixtures/*-real.jsonl
+tools/probe-diff/REPORT.md
+tools/probe-diff/probe-diff-report.json

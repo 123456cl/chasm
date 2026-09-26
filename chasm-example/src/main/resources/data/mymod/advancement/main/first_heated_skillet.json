@@ -1,0 +1,28 @@
+{
+  "display": {
+    "title": {
+      "translate": "advancements.mymod.skillet_first_heat.title"
+    },
+    "description": {
+      "translate": "advancements.mymod.skillet_first_heat.description"
+    },
+    "icon": {
+      "id": "mymod:skillet",
+      "count": 1
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "heat": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "heat"
+    ]
+  ]
+}

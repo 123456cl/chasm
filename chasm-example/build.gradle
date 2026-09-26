@@ -1,0 +1,87 @@
+plugins {
+	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
+}
+
+version = project.mod_version
+group = 'com.example'
+
+loom {
+	mods {
+		"chasm-example" {
+			sourceSet sourceSets.main
+		}
+	}
+
+	runs {
+		datagen {
+			inherit server
+			name "Data Generation"
+			vmArg "-Dfabric-api.datagen"
+			vmArg "-Dfabric-api.datagen.output-dir=${file("src/main/generated")}"
+			vmArg "-Dfabric-api.datagen.modid=chasm-example"
+			runDir "build/datagen"
+		}
+	}
+}
+
+// DataGen 生成的资源（模型/语言/配方 json）自动纳入资源集
+sourceSets {
+	main {
+		resources {
+			srcDir 'src/main/generated'
+		}
+	}
+}
+
+// 第十二步：可自动生成的内容默认自动生成——让 build 依赖 runDatagen，
+// 每次编译都自动触发 DataGen，重新生成最新的语言/模型/配方/附魔/标签 JSON。
+tasks.named('build') {
+	dependsOn 'runDatagen'
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings loom.officialMojangMappings()
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	modImplementation project(':chasm-core')
+	// 第三方内容移植模块：**仅为了在同一个开发客户端里一起加载**（示例源码不引用它们，
+	// 保持源码隔离；发布时它们是各自独立的模组）。也可单独跑 :<module>:runClient。
+	// 这些模块目录不存在时（对外发布的仓库不含它们）自动跳过，示例模组照常构建。
+	['apoth-port', 'tetra-port'].each { name ->
+		if (findProject(":${name}") != null) {
+			modImplementation project(":${name}")
+		}
+	}
+
+	// 单元测试基础设施（与 chasm-core 同一套：Fabric loader + JUnit 5）
+	testImplementation "net.fabricmc:fabric-loader-junit:${project.loader_version}"
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+test {
+	useJUnitPlatform()
+	testLogging {
+		events "passed", "skipped", "failed"
+		exceptionFormat "full"
+	}
+}
+
+processResources {
+	def version = project.version
+	inputs.property "version", version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 21
+}
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
+}

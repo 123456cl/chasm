@@ -1,0 +1,28 @@
+{
+	"schemaVersion": 1,
+	"id": "chasm-core",
+	"version": "${version}",
+	"name": "Chasm Core",
+	"description": "Chasm 2.0 - Gameplay-first API for Fabric. 声明式注册 + 玩法行为组合 + 数据组件，让玩法创作更简单统一。",
+	"authors": ["Chasm API Team"],
+	"license": "MIT",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"api.chasm.ChasmInit"
+		],
+		"client": [
+			"api.chasm.item.client.ChasmTooltipClient",
+			"api.chasm.gui.client.ChasmGuiClient",
+			"api.chasm.key.client.ChasmKeyClient",
+			"api.chasm.player.client.PlayerVarClient",
+			"api.chasm.particle.client.ChasmParticleClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
