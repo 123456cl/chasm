@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_item_minecraft_blaze_rod": {
+    "has_item_minecraft_stick": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:blaze_rod"
+            "items": "minecraft:stick"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_item_minecraft_blaze_rod"
+      "has_item_minecraft_stick"
     ]
   ],
   "rewards": {

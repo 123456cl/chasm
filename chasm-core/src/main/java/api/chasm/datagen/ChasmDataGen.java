@@ -86,6 +86,45 @@ public class ChasmDataGen implements DataGeneratorEntrypoint {
 		pack.addProvider(ChasmDamageTypeTagProvider::new);
 	}
 
+	/** 框架自身命名空间：内置内容（如伤害类型）由使用方的 DataGen 落到使用方的数据包里。 */
+	private static final String FRAMEWORK_NAMESPACE = "chasm";
+
+	/**
+	 * DataGen 生成作用域：只为本模组（含框架命名空间）生成产物。
+	 *
+	 * <p>为什么必须限定：同一个开发环境里可能加载了多个使用 Chasm 的模组，
+	 * 而 {@link ChasmContextRegistry#all()} 是全局视图——不限定就会把别人的物品模型、
+	 * 配方、语言条目生成到自己的产物目录里（互相污染，且产物里会混入第三方命名内容）。
+	 * 空集合表示"不过滤"（无法确定归属时的保守回退，保持旧行为）。</p>
+	 */
+	private static volatile Set<String> SCOPE = Set.of();
+
+	/** 限定 DataGen 生成作用域（供自定义生成流程使用；通常由 {@link #generate} 自动设置）。 */
+	public static void scopeTo(String... modIds) {
+		Set<String> ids = new LinkedHashSet<>();
+		for (String id : modIds) {
+			if (id != null && !id.isBlank()) {
+				ids.add(id);
+			}
+		}
+		SCOPE = ids.isEmpty() ? Set.of() : Set.copyOf(ids);
+	}
+
+	/** 当前作用域内的模组上下文（未限定时等于全局视图）。 */
+	static Iterable<ModContext> scopedContexts() {
+		Set<String> scope = SCOPE;
+		if (scope.isEmpty()) {
+			return ChasmContextRegistry.all();
+		}
+		List<ModContext> inScope = new ArrayList<>();
+		for (ModContext ctx : ChasmContextRegistry.all()) {
+			if (scope.contains(ctx.id())) {
+				inScope.add(ctx);
+			}
+		}
+		return inScope;
+	}
+
 	/** 全局 JSON 覆写注册表：数据路径（如 {@code mymod/enchantment/mana_vampire.json}）→ 覆写后的 JSON。 */
 	private static final Map<String, JsonElement> OVERRIDES = new HashMap<>();
 
@@ -138,6 +177,8 @@ public class ChasmDataGen implements DataGeneratorEntrypoint {
 		// 内容容器（@ChasmContentHolder）必须排在入口类之后扫：DataGen 期走的是同一条收集路径，
 		// 顺序与运行时 onInitialize 保持一致，产物的收集顺序才不会漂。
 		java.util.List<Class<?>> contentHolders = new java.util.ArrayList<>();
+		// 本次生成归属的模组 id：扫描谁，就只为谁生成（+ 框架命名空间）。
+		Set<String> owners = new LinkedHashSet<>();
 		for (Class<?> modClass : modClasses) {
 			if (modClass.isAnnotationPresent(api.chasm.registry.ChasmContentHolder.class)) {
 				contentHolders.add(modClass);
@@ -145,9 +186,21 @@ public class ChasmDataGen implements DataGeneratorEntrypoint {
 			}
 			// DataGen 环境注册表已冻结：只收集声明（构建实例并暴露到 ModContext），不真实注册
 			ChasmRegistrar.scan(modClass, false, false);
+			String owner = ChasmContextRegistry.currentIdOrNull();
+			if (owner != null) {
+				owners.add(owner);
+			}
 		}
 		for (Class<?> contentHolder : contentHolders) {
 			ChasmRegistrar.scanContent(contentHolder, false, false);
+			String owner = ChasmContextRegistry.currentIdOrNull();
+			if (owner != null) {
+				owners.add(owner);
+			}
+		}
+		if (!owners.isEmpty()) {
+			owners.add(FRAMEWORK_NAMESPACE);
+			scopeTo(owners.toArray(new String[0]));
 		}
 		// 第十步：JSON 软编码物品（data/<ns>/chasm/items/*.json）在 DataGen 期也收集，
 		// 使模型/语言生成器能为其生成产物（datagen 模式只暴露、不注册）。
@@ -164,7 +217,7 @@ public class ChasmDataGen implements DataGeneratorEntrypoint {
 
 		@Override
 		public void generateBlockStateModels(BlockModelGenerators blockStateModelGenerator) {
-			for (ModContext ctx : ChasmContextRegistry.all()) {
+			for (ModContext ctx : scopedContexts()) {
 				for (api.chasm.block.ChasmBlockController controller : ctx.blocks().values()) {
 					String texture = controller.chasmTexture();
 					if (texture == null) {
@@ -181,7 +234,7 @@ public class ChasmDataGen implements DataGeneratorEntrypoint {
 
 		@Override
 		public void generateItemModels(ItemModelGenerators itemModelGenerator) {
-			for (ModContext ctx : ChasmContextRegistry.all()) {
+			for (ModContext ctx : scopedContexts()) {
 				for (ChasmItemController controller : ctx.items().values()) {
 					// 自带模型的物品跳过：自动生成的占位模型会和自带模型同路径，导致资源重复而构建失败
 					if (!controller.chasmAutoModel()) {
@@ -232,7 +285,7 @@ public class ChasmDataGen implements DataGeneratorEntrypoint {
 
 		@Override
 		public void generateTranslations(HolderLookup.Provider registryLookup, TranslationBuilder translationBuilder) {
-			for (ModContext ctx : ChasmContextRegistry.all()) {
+			for (ModContext ctx : scopedContexts()) {
 				for (ChasmItemController controller : ctx.items().values()) {
 					String name = controller.chasmDisplayName();
 					if (name != null) {
@@ -274,7 +327,7 @@ public class ChasmDataGen implements DataGeneratorEntrypoint {
 
 		@Override
 		public void buildRecipes(RecipeOutput exporter) {
-			for (ModContext ctx : ChasmContextRegistry.all()) {
+			for (ModContext ctx : scopedContexts()) {
 				String modId = ctx.id();
 				for (RecipeDeclaration recipe : ctx.recipes().values()) {
 					ShapedRecipeBuilder builder = ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT,
@@ -312,7 +365,7 @@ public class ChasmDataGen implements DataGeneratorEntrypoint {
 
 		@Override
 		public void generate() {
-			for (ModContext ctx : ChasmContextRegistry.all()) {
+			for (ModContext ctx : scopedContexts()) {
 				for (api.chasm.block.ChasmBlockController controller : ctx.blocks().values()) {
 					api.chasm.block.LootDeclaration loot = controller.chasmLoot();
 					if (loot == null) {
@@ -391,7 +444,7 @@ public class ChasmDataGen implements DataGeneratorEntrypoint {
 
 		@Override
 		protected void addTags(HolderLookup.Provider wrapperLookup) {
-			for (ModContext ctx : ChasmContextRegistry.all()) {
+			for (ModContext ctx : scopedContexts()) {
 				for (api.chasm.block.ChasmBlockController controller : ctx.blocks().values()) {
 					String tool = controller.chasmRequiredTool();
 					if (tool == null) {
@@ -474,7 +527,7 @@ public class ChasmDataGen implements DataGeneratorEntrypoint {
 			// 用 LinkedHashSet 聚合：同一物品若因属于多个 item 类型或其类型附魔池有多个成员，
 			// 可能被重复 add 到同一标签。Set 在生成前先去重，且保持首次出现顺序，避免生成重复条目。
 			Map<TagKey<Item>, Set<Item>> byTag = new HashMap<>();
-			for (ModContext ctx : ChasmContextRegistry.all()) {
+			for (ModContext ctx : scopedContexts()) {
 				for (ChasmItemController controller : ctx.items().values()) {
 					ItemType type = controller.chasmType();
 					if (type == null) {

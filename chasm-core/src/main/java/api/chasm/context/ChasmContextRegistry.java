@@ -51,6 +51,15 @@ public final class ChasmContextRegistry {
 	}
 
 	/**
+	 * 当前正在初始化的模组 id；不在初始化上下文（尚未 {@code scan}）时返回 {@code null}。
+	 *
+	 * <p>与 {@link #current()} 的区别：不抛异常，供 DataGen 这类"尽力而为"的场景读取。</p>
+	 */
+	public static String currentIdOrNull() {
+		return currentModId;
+	}
+
+	/**
 	 * 获取当前正在初始化的模组上下文。
 	 *
 	 * @throws IllegalStateException 若不在模组初始化上下文（scan 之后）中调用

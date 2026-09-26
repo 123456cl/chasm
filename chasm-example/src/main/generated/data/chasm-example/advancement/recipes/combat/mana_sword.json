@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_item_minecraft_stick": {
+    "has_item_minecraft_diamond": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:stick"
+            "items": "minecraft:diamond"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_item_minecraft_stick"
+      "has_item_minecraft_diamond"
     ]
   ],
   "rewards": {
