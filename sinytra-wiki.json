@@ -9,6 +9,6 @@
         "123456cl"
     ],
     "platforms": {
-        "curseforge": "chasm"
+        "curseforge": "chasm-api"
     }
 }
