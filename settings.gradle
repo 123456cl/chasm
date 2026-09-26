@@ -14,11 +14,14 @@ rootProject.name = 'chasm2'
 // 框架本体 + 示例模组：随仓库发布，始终构建。
 include 'chasm-core', 'chasm-example'
 
-// 移植模块：目录存在才纳入构建。
+// 第三方内容移植模块：目录存在才纳入构建。
 // 原因：这些模块携带第三方数据/资源，在取得作者许可前不随仓库发布（见 .gitignore）。
-// 本地克隆到含这些目录的完整工作区时，会自动照常构建。
-['apoth-port', 'tetra-port'].each { name ->
-	if (file(name).isDirectory()) {
-		include name
+// 加 -PnoPorts 可强制跳过它们，用来校验"只有框架本体"时的构建（CI / 发布前检查）。
+def includePorts = !gradle.startParameter.projectProperties.containsKey('noPorts')
+if (includePorts) {
+	['apoth-port', 'tetra-port'].each { name ->
+		if (file(name).isDirectory()) {
+			include name
+		}
 	}
 }

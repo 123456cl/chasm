@@ -26,8 +26,9 @@
 
 ```powershell
 cd C:\path\to\chasm2
-.\gradlew.bat build          # 全部模块 + 全部测试
+.\gradlew.bat build              # 全部模块 + 全部测试
 .\gradlew.bat :chasm-core:build
+.\gradlew.bat build -PnoPorts    # 只构建框架本体 + 示例（跳过第三方适配模块）
 ```
 
 产物：`<module>/build/libs/<module>-<version>.jar`（版本号取自 `gradle.properties` 的 `mod_version`）。
